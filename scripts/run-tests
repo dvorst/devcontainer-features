@@ -1,0 +1,16 @@
+#!/bin/sh
+set -eu
+
+WORKFLOW=".github/workflows/test.yml"
+FEATURE="${1:-blesh}"
+
+images=$(yq --raw-output '.jobs.test.strategy.matrix["base-image"][]' "$WORKFLOW")
+
+for image in $images; do
+    printf '==================================== %s ====================================\n' "$image"
+    devcontainer features test \
+        --project-folder . \
+        --features "$FEATURE" \
+        --base-image "$image" \
+        --log-level info
+done

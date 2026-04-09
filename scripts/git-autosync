@@ -1,0 +1,47 @@
+#!/bin/sh
+set -eu
+
+AUTOSYNC_MARKER="# managed by git-autosync"
+
+usage() {
+    printf 'Usage: %s [--enable|--disable]\n' "$0" >&2
+    exit 1
+}
+
+get_hooks_dir() {
+    git_dir=$(git rev-parse --git-dir 2>/dev/null) || {
+        printf 'Error: not in a git repository\n' >&2
+        exit 1
+    }
+    printf '%s/hooks' "$git_dir"
+}
+
+enable_autosync() {
+    hooks_dir=$(get_hooks_dir)
+    mkdir -p "$hooks_dir"
+    hook="$hooks_dir/post-commit"
+    printf '#!/bin/sh\n%s\ngit push\n' "$AUTOSYNC_MARKER" > "$hook"
+    chmod +x "$hook"
+    printf 'git-autosync enabled\n'
+}
+
+disable_autosync() {
+    hooks_dir=$(get_hooks_dir)
+    hook="$hooks_dir/post-commit"
+    if [ ! -f "$hook" ]; then
+        printf 'git-autosync is not enabled\n'
+        return
+    fi
+    if ! grep -qF "$AUTOSYNC_MARKER" "$hook"; then
+        printf 'Error: post-commit hook exists but was not created by git-autosync\n' >&2
+        exit 1
+    fi
+    rm "$hook"
+    printf 'git-autosync disabled\n'
+}
+
+case "${1:-}" in
+    --enable) enable_autosync ;;
+    --disable) disable_autosync ;;
+    *) usage ;;
+esac

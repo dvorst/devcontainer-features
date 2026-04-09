@@ -1,0 +1,46 @@
+{
+    "image": "mcr.microsoft.com/devcontainers/javascript-node:latest",
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "json.schemas": [
+                    {
+                        "fileMatch": [
+                            "*/devcontainer-feature.json"
+                        ],
+                        "url": "https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainerFeature.schema.json"
+                    }
+                ]
+            },
+            "extensions": [
+                "mads-hartmann.bash-ide-vscode",
+                "shakram02.bash-beautify",
+                "waderyan.gitblame",
+                "mhutchie.git-graph",
+                "eamodio.gitlens",
+                "redhat.vscode-yaml",
+                "timonwong.shellcheck",
+                "mkhl.shfmt",
+                "iliazeus.vscode-ansi",
+                "redhat.ansible"
+            ]
+        }
+    },
+    "features": {
+        // install apt packages with --no-install-recommends
+        // TODO: find alternative for which recommendations can be installed
+        "ghcr.io/devcontainers-extra/features/apt-packages:1": {
+            "packages": "podman,podman-docker,yq,libcriu2,buildah,containers-storage,slirp4netns,nftables,catatonit,criu,uidmap,gpg-wks-client,tini,dbus-user-session,aardvark-dns,dumb-init,passt,fuse-overlayfs,linux-sysctl-defaults,systemd-cryptsetup,python3-pycriu,systemd-timesyncd,libnss-systemd,libkmod2"
+        },
+        "ghcr.io/devcontainers-extra/features/claude-code:1": {}
+    },
+    "remoteEnv": {
+        "PATH": "${containerEnv:PATH}:/workspaces/devcontainer-features/scripts"
+    },
+    "remoteUser": "root",
+    "runArgs": [
+        "--privileged",
+        "--device=/dev/fuse"
+    ],
+    "updateContentCommand": "npm install -g @devcontainers/cli"
+}

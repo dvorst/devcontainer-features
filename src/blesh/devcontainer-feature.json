@@ -1,0 +1,15 @@
+{
+    "id": "blesh",
+    "version": "1.0.0",
+    "name": "Ble.sh",
+    "description": "Installs ble.sh (Bash Line Editor) from the nightly build, providing syntax highlighting, autocompletion, and multiline editing in Bash.",
+    "documentationURL": "https://github.com/akinomyoga/ble.sh",
+    "options": {
+        "nightly-build-version": {
+            "type": "string",
+            "default": "ble-nightly",
+            "description": "Nightly build version to install (e.g. 'ble-nightly-20260310+b99cadb'). Defaults to 'ble-nightly', which installs the most recent nightly build."
+        }
+    },
+    "installsAfter": []
+}
