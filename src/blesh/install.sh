@@ -6,6 +6,22 @@ set -eu
 
 has() { command -v "$1" >/dev/null 2>&1; }
 
+# Download a file from a URL to a destination path
+# Prefers curl; falls back to wget with BusyBox detection
+download() {
+    _url="$1"
+    _dest="$2"
+    if has curl; then
+        curl --fail --location --proto '=https' --tlsv1.2 --output "$_dest" "$_url"
+    # BusyBox wget (Alpine) does not support --secure-protocol; GNU wget does
+    # BusyBox grep only supports short flags: -F (fixed-strings), -q (quiet, return 0 if found)
+    elif wget --version 2>&1 | grep -Fq 'BusyBox'; then
+        wget --output-document "$_dest" "$_url"
+    else
+        wget --secure-protocol=TLSv1_2 --output-document "$_dest" "$_url"
+    fi
+}
+
 # Install a package using whatever package manager is available
 pkg_install() {
     if has apt-get; then     # Debian, Ubuntu
@@ -160,15 +176,7 @@ rm -rf /tmp/blesh /tmp/blesh.tar.xz
 
 # Download
 url="https://github.com/akinomyoga/ble.sh/releases/download/nightly/${NIGHTLY_BUILD_VERSION}.tar.xz"
-if has curl; then
-    curl --fail --location --proto '=https' --tlsv1.2 --output /tmp/blesh.tar.xz "$url"
-# BusyBox wget (Alpine) does not support --secure-protocol; GNU wget does
-# BusyBox grep only supports short flags: -F: pattern is literal not regex, -q: quiet, return 0 if found, 1 otherwise
-elif wget --version 2>&1 | grep -Fq 'BusyBox'; then
-    wget --output-document /tmp/blesh.tar.xz "$url"
-else
-    wget --secure-protocol=TLSv1_2 --output-document /tmp/blesh.tar.xz "$url"
-fi
+download "$url" /tmp/blesh.tar.xz
 
 # Extract
 # busybox tar does not support `tar --one-top-level`, so the dir is created manually
