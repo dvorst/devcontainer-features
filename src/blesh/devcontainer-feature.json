@@ -12,7 +12,7 @@
         },
         "install-dir": {
             "type": "string",
-            "default": "/usr/local",
+            "default": "/usr/local/share",
             "description": "Directory to install ble.sh into. Defaults to '/usr/local', which installs blesh for all users."
         },
         "bashrc": {
