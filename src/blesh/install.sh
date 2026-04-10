@@ -92,6 +92,25 @@ if ! has bash; then
     pkg_install bash
 fi
 
+# ps is required by ble.sh at runtime; Alpine busybox provides it by default
+if ! has ps; then
+    if has apt-get; then     # Debian, Ubuntu
+        pkg_install procps
+    elif has tdnf; then      # Azure Linux (Mariner)
+        pkg_install procps-ng
+    elif has dnf; then       # Fedora, RHEL 8+, CentOS Stream, Oracle Linux, Rocky, AlmaLinux
+        pkg_install procps-ng
+    elif has yum; then       # RHEL 7, CentOS 7, Amazon Linux
+        pkg_install procps-ng
+    elif has zypper; then    # openSUSE
+        pkg_install procps
+    elif has pacman; then    # Arch Linux
+        pkg_install procps-ng
+    elif has nix-env; then   # NixOS
+        pkg_install procps
+    fi
+fi
+
 # --------------------------------------------------------------------------------------------------
 # Install temporary tools
 
@@ -160,6 +179,10 @@ rm /tmp/blesh.tar.xz
 # Install
 bash /tmp/blesh/ble.sh --install "$INSTALL_DIR"
 rm -rf /tmp/blesh
+
+# verify file exists to catch silent install failure
+# ble.sh may exit 0 even when installation fails (this is at least the case for missing runtime dependencies)
+test -f "${INSTALL_DIR}/blesh/ble.sh" || { echo "Error: ble.sh installation failed" >&2; exit 1; }
 
 # Set up shell integration in /etc/bash.bashrc
 BASHRC_LINE='[[ $- == *i* ]] && source '"${INSTALL_DIR}"'/blesh/ble.sh'
