@@ -130,6 +130,15 @@ if ! has awk; then
     pkg_install gawk
 fi
 
+# sed is required by ble.sh at install time and runtime
+if ! has sed; then
+    if has nix-env; then  # NixOS: GNU sed is packaged as 'gnused'
+        pkg_install gnused
+    else
+        pkg_install sed
+    fi
+fi
+
 # ps is required by ble.sh at runtime
 if ! has ps; then
     # Azure Linux, Fedora, RHEL, CentOS, Amazon Linux, and Arch use procps-ng
