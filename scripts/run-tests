@@ -3,8 +3,13 @@ set -eu
 
 WORKFLOW="/workspaces/devcontainer-features/.github/workflows/test.yml"
 FEATURE="${1:-blesh}"
+IMAGE="${2:-}"
 
-images=$(yq --raw-output '.jobs.test.strategy.matrix["base-image"][]' "$WORKFLOW")
+if [ -n "$IMAGE" ]; then
+    images="$IMAGE"
+else
+    images=$(yq --raw-output '.jobs.test.strategy.matrix["base-image"][]' "$WORKFLOW")
+fi
 
 for image in $images; do
     printf '==================================== %s ====================================\n' "$image"
