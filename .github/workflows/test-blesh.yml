@@ -43,7 +43,7 @@ jobs:
           # Arch
           - archlinux:latest
           # NixOS
-          - nixos/nix:latest
+          - docker.io/nixos/nix:latest
 
     steps:
       - uses: actions/checkout@v4
