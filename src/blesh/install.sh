@@ -164,7 +164,12 @@ url="https://github.com/akinomyoga/ble.sh/releases/download/nightly/${NIGHTLY_BU
 if has curl; then
     curl --fail --location --proto '=https' --tlsv1.2 --output /tmp/blesh.tar.xz "$url"
 else
-    wget --secure-protocol=TLSv1_2 --output-document /tmp/blesh.tar.xz "$url"
+    # BusyBox wget (Alpine) does not support --secure-protocol; GNU wget does
+    if wget --version 2>&1 | grep --fixed-strings --quiet 'BusyBox'; then
+        wget --output-document /tmp/blesh.tar.xz "$url"
+    else
+        wget --secure-protocol=TLSv1_2 --output-document /tmp/blesh.tar.xz "$url"
+    fi
 fi
 
 # Extract
