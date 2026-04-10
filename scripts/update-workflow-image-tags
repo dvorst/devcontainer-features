@@ -1,0 +1,91 @@
+#!/bin/sh
+# Updates pinned image references in the test workflow to their latest versions.
+#
+# Handles images where 'latest' is not published as a tag:
+#   - Azure Linux: major version is a tag (e.g. 3.0, 4.0)
+#   - Red Hat UBI: major version is part of the repo path (e.g. ubi9/ubi, ubi10/ubi)
+set -eu
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+WORKFLOW="$SCRIPT_DIR/../.github/workflows/test.yml"
+
+# Fetches the highest X.Y tag for a given registry and repo.
+# Usage: latest_xy_tag <registry> <repo>
+latest_xy_tag() {
+    registry="$1"
+    repo="$2"
+    curl --silent --fail --location "https://$registry/v2/$repo/tags/list" \
+        | grep --only-matching '"[0-9][0-9]*\.[0-9][0-9]*"' \
+        | tr --delete '"' \
+        | sort --version-sort \
+        | tail --lines=1
+}
+
+# Returns 0 if the registry repo exists, 1 otherwise.
+# Usage: repo_exists <registry> <repo>
+repo_exists() {
+    registry="$1"
+    repo="$2"
+    status=$(curl --silent --output /dev/null --write-out '%{http_code}' \
+        "https://$registry/v2/$repo/tags/list")
+    [ "$status" = "200" ]
+}
+
+update_azurelinux() {
+    image="mcr.microsoft.com/azurelinux/base/core"
+    registry="mcr.microsoft.com"
+    repo="azurelinux/base/core"
+
+    latest=$(latest_xy_tag "$registry" "$repo")
+    if [ -z "$latest" ]; then
+        printf 'error: could not determine latest Azure Linux tag\n' >&2
+        return 1
+    fi
+
+    # Extract current tag from workflow (e.g. mcr.microsoft.com/azurelinux/base/core:3.0 -> 3.0)
+    current=$(
+        grep --only-matching "$image:[0-9][0-9]*\.[0-9][0-9]*" "$WORKFLOW" \
+            | head --lines=1 \
+            | cut --delimiter=: --fields=2
+    )
+
+    if [ "$current" = "$latest" ]; then
+        printf 'Azure Linux already up to date: %s\n' "$latest"
+        return 0
+    fi
+
+    sed --in-place "s|$image:$current|$image:$latest|g" "$WORKFLOW"
+    printf 'Updated Azure Linux: %s -> %s\n' "$current" "$latest"
+}
+
+update_ubi() {
+    registry="registry.access.redhat.com"
+
+    # Extract current major version from workflow (e.g. registry.access.redhat.com/ubi9/ubi -> 9)
+    current_major=$(
+        grep --only-matching "$registry/ubi[0-9]*/ubi" "$WORKFLOW" \
+            | head --lines=1 \
+            | sed "s|$registry/ubi\([0-9]*\)/ubi|\1|"
+    )
+
+    # Probe incrementing major versions until one does not exist
+    latest_major="$current_major"
+    next_major=$((current_major + 1))
+    while repo_exists "$registry" "ubi${next_major}/ubi"; do
+        latest_major="$next_major"
+        next_major=$((next_major + 1))
+    done
+
+    if [ "$latest_major" = "$current_major" ]; then
+        printf 'Red Hat UBI already up to date: ubi%s\n' "$latest_major"
+        return 0
+    fi
+
+    sed --in-place \
+        "s|$registry/ubi${current_major}/ubi|$registry/ubi${latest_major}/ubi|g" \
+        "$WORKFLOW"
+    printf 'Updated Red Hat UBI: ubi%s -> ubi%s\n' "$current_major" "$latest_major"
+}
+
+update_azurelinux
+update_ubi
