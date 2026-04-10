@@ -9,6 +9,16 @@
             "type": "string",
             "default": "ble-nightly",
             "description": "Nightly build version to install (e.g. 'ble-nightly-20260310+b99cadb'). Defaults to 'ble-nightly', which installs the most recent nightly build."
+        },
+        "install-dir": {
+            "type": "string",
+            "default": "/usr/local",
+            "description": "Directory to install ble.sh into. Defaults to '/usr/local'."
+        },
+        "bashrc": {
+            "type": "string",
+            "default": "/etc/bash.bashrc",
+            "description": "Path to the bashrc file to add the ble.sh source line to. Defaults to '/etc/bash.bashrc'."
         }
     },
     "installsAfter": []

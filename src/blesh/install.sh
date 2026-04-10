@@ -4,9 +4,8 @@ set -eu
 # --------------------------------------------------------------------------------------------------
 # Config
 
-BLESH_INSTALL_DIR="/usr/local/share"
-BASH_BASHRC="/etc/bash.bashrc"
-BLESH_BASHRC_LINE='[[ $- == *i* ]] && source '"${BLESH_INSTALL_DIR}"'/blesh/ble.sh'
+INSTALL_DIR="${INSTALL_DIR:-/usr/local}"
+BASHRC="${BASHRC:-/etc/bash.bashrc}"
 
 # --------------------------------------------------------------------------------------------------
 # Functions
@@ -165,14 +164,15 @@ tar -xJf /tmp/blesh.tar.xz \
 rm /tmp/blesh.tar.xz
 
 # Install
-bash /tmp/blesh/ble.sh --install "$BLESH_INSTALL_DIR"
+bash /tmp/blesh/ble.sh --install "$INSTALL_DIR"
 rm -rf /tmp/blesh
 
 # Set up shell integration in /etc/bash.bashrc
-touch "$BASH_BASHRC"
+BASHRC_LINE='[[ $- == *i* ]] && source '"${INSTALL_DIR}"'/blesh/ble.sh'
+touch "$BASHRC"
 # busybox grep does not support long flags; use short flags -F (fixed-strings) and -q (quiet)
-if ! grep -Fq "$BLESH_BASHRC_LINE" "$BASH_BASHRC"; then
-    printf '\n%s\n' "$BLESH_BASHRC_LINE" >> "$BASH_BASHRC"
+if ! grep -Fq "$BASHRC_LINE" "$BASHRC"; then
+    printf '\n%s\n' "$BASHRC_LINE" >> "$BASHRC"
 fi
 
 # --------------------------------------------------------------------------------------------------
