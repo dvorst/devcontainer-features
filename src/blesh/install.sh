@@ -42,7 +42,6 @@ pkg_remove() {
         apt-get autoremove --yes
     elif has apk; then       # Alpine
         apk del --purge "$@"
-        apk autoremove
     elif has tdnf; then      # Azure Linux (Mariner)
         tdnf remove --assumeyes "$@"
         tdnf autoremove --assumeyes
@@ -163,12 +162,12 @@ rm -rf /tmp/blesh /tmp/blesh.tar.xz
 url="https://github.com/akinomyoga/ble.sh/releases/download/nightly/${NIGHTLY_BUILD_VERSION}.tar.xz"
 if has curl; then
     curl --fail --location --proto '=https' --tlsv1.2 --output /tmp/blesh.tar.xz "$url"
-    # BusyBox wget (Alpine) does not support --secure-protocol; GNU wget does
+# BusyBox wget (Alpine) does not support --secure-protocol; GNU wget does
 # BusyBox grep only supports short flags: -F: pattern is literal not regex, -q: quiet, return 0 if found, 1 otherwise
 elif wget --version 2>&1 | grep -Fq 'BusyBox'; then
-        wget --output-document /tmp/blesh.tar.xz "$url"
-    else
-        wget --secure-protocol=TLSv1_2 --output-document /tmp/blesh.tar.xz "$url"
+    wget --output-document /tmp/blesh.tar.xz "$url"
+else
+    wget --secure-protocol=TLSv1_2 --output-document /tmp/blesh.tar.xz "$url"
 fi
 
 # Extract
