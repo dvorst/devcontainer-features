@@ -100,6 +100,14 @@ pkg_clean() {
 }
 
 # --------------------------------------------------------------------------------------------------
+# Validate required environment variables
+# Mostly usefull when debugging
+
+: "${NIGHTLY_BUILD_VERSION:?NIGHTLY_BUILD_VERSION must be set}"
+: "${INSTALL_DIR:?INSTALL_DIR must be set}"
+: "${BASHRC:?BASHRC must be set}"
+
+# --------------------------------------------------------------------------------------------------
 # Install permanent tools
 
 # bash is required to run the ble.sh installer and to use ble.sh at runtime
@@ -107,21 +115,13 @@ if ! has bash; then
     pkg_install bash
 fi
 
-# ps is required by ble.sh at runtime; Alpine busybox provides it by default
+# ps is required by ble.sh at runtime
 if ! has ps; then
-    if has apt-get; then     # Debian, Ubuntu
-        pkg_install procps
-    elif has tdnf; then      # Azure Linux (Mariner)
+    # Azure Linux, Fedora, RHEL, CentOS, Amazon Linux, and Arch use procps-ng
+    if has tdnf || has dnf || has yum || has pacman; then
         pkg_install procps-ng
-    elif has dnf; then       # Fedora, RHEL 8+, CentOS Stream, Oracle Linux, Rocky, AlmaLinux
-        pkg_install procps-ng
-    elif has yum; then       # RHEL 7, CentOS 7, Amazon Linux
-        pkg_install procps-ng
-    elif has zypper; then    # openSUSE
-        pkg_install procps
-    elif has pacman; then    # Arch Linux
-        pkg_install procps-ng
-    elif has nix-env; then   # NixOS
+    # all others use procps
+	else
         pkg_install procps
     fi
 fi
@@ -150,9 +150,9 @@ fi
 
 # Ensure xz decompression is available (package name differs per distro)
 # Note: busybox tar has xz support built in and does not require the xz binary,
+#       but GNU tar requires xz to be installed separately.
 _installed_xz=false
 _xz_pkg=""
-#       but GNU tar requires xz to be installed separately.
 if ! has xz; then
     if has apt-get; then  # Debian, Ubuntu: package is named 'xz-utils'
         pkg_install xz-utils
