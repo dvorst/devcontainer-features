@@ -106,6 +106,7 @@ pkg_clean() {
 : "${NIGHTLY_BUILD_VERSION:?NIGHTLY_BUILD_VERSION must be set}"
 : "${INSTALL_DIR:?INSTALL_DIR must be set}"
 : "${BASHRC:?BASHRC must be set}"
+: "${RCFILE:=}"
 
 # --------------------------------------------------------------------------------------------------
 # Install permanent tools
@@ -220,11 +221,12 @@ rm -rf /tmp/blesh
 test -f "${INSTALL_DIR}/blesh/ble.sh" || { echo "Error: ble.sh installation failed" >&2; exit 1; }
 
 # Set up shell integration in /etc/bash.bashrc
-BASHRC_LINE='[[ $- == *i* ]] && source '"${INSTALL_DIR}"'/blesh/ble.sh'
+# ${RCFILE:+ --rcfile ${RCFILE}} expands to ' --rcfile <path>' when set, empty otherwise
+_bashrc_line='[[ $- == *i* ]] && source '"${INSTALL_DIR}"'/blesh/ble.sh'"${RCFILE:+ --rcfile ${RCFILE}}"
 touch "$BASHRC"
 # busybox grep does not support long flags; use short flags -F (fixed-strings) and -q (quiet)
-if ! grep -Fq "$BASHRC_LINE" "$BASHRC"; then
-    printf '\n%s\n' "$BASHRC_LINE" >> "$BASHRC"
+if ! grep -Fq "$_bashrc_line" "$BASHRC"; then
+    printf '\n%s\n' "$_bashrc_line" >> "$BASHRC"
 fi
 
 # --------------------------------------------------------------------------------------------------

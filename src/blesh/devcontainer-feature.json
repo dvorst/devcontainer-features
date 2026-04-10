@@ -19,6 +19,11 @@
             "type": "string",
             "default": "/etc/bash.bashrc",
             "description": "Path to the bashrc file to add the ble.sh source line to. Defaults to '/etc/bash.bashrc', which installs blesh for all users."
+        },
+        "rcfile": {
+            "type": "string",
+            "default": "",
+            "description": "Path to a ble.sh configuration file (blerc) to load at startup via --rcfile. When empty (the default), ble.sh will use '~/.blerc'."
         }
     },
     "installsAfter": []
