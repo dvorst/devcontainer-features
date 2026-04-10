@@ -13,12 +13,12 @@
         "install-dir": {
             "type": "string",
             "default": "/usr/local",
-            "description": "Directory to install ble.sh into. Defaults to '/usr/local'."
+            "description": "Directory to install ble.sh into. Defaults to '/usr/local', which installs blesh for all users."
         },
         "bashrc": {
             "type": "string",
             "default": "/etc/bash.bashrc",
-            "description": "Path to the bashrc file to add the ble.sh source line to. Defaults to '/etc/bash.bashrc'."
+            "description": "Path to the bashrc file to add the ble.sh source line to. Defaults to '/etc/bash.bashrc', which installs blesh for all users."
         }
     },
     "installsAfter": []
