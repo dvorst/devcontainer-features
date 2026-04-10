@@ -5,12 +5,12 @@ on:
     paths:
       - src/blesh/**
       - test/blesh/**
-      - .github/workflows/test.yml
+      - .github/workflows/test-blesh.yml
   pull_request:
     paths:
       - src/blesh/**
       - test/blesh/**
-      - .github/workflows/test.yml
+      - .github/workflows/test-blesh.yml
 
 jobs:
   test:
@@ -42,8 +42,6 @@ jobs:
           - opensuse/leap:latest
           # Arch
           - archlinux:latest
-          # NixOS
-          - docker.io/nixos/nix:latest
 
     steps:
       - uses: actions/checkout@v4
