@@ -18,6 +18,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # base-images that do not support a latest tag can be updated to latest via the command
+        #   update-workflow-image-tags
         base-image:
           # Debian-based
           - debian:latest
@@ -32,10 +34,10 @@ jobs:
           - almalinux:latest
           # RPM-based (yum) - Amazon Linux uses yum/dnf
           - amazonlinux:latest
-          # RPM-based (tdnf) - Azure Linux
-          - mcr.microsoft.com/azurelinux/base/core:latest
-          # RHEL UBI (uses dnf)
-          - registry.access.redhat.com/ubi9/ubi
+          # RPM-based (tdnf) - Azure Linux (has no 'latest' tag)
+          - mcr.microsoft.com/azurelinux/base/core:3.0
+          # Red Hat (dnf) - RHEL UBI (has no 'latest' tag)
+          - registry.access.redhat.com/ubi10/ubi
           # openSUSE
           - opensuse/leap:latest
           # Arch
