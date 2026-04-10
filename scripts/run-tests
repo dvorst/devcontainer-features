@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-WORKFLOW=".github/workflows/test.yml"
+WORKFLOW="/workspaces/devcontainer-features/.github/workflows/test.yml"
 FEATURE="${1:-blesh}"
 
 images=$(yq --raw-output '.jobs.test.strategy.matrix["base-image"][]' "$WORKFLOW")
