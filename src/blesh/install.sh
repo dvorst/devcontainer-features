@@ -6,7 +6,7 @@ set -eu
 
 BLESH_INSTALL_DIR="/usr/local/share"
 BASH_BASHRC="/etc/bash.bashrc"
-BLESH_BASHRC_LINE='[[ $- == *i* ]] && source /usr/local/share/blesh/ble.sh'
+BLESH_BASHRC_LINE='[[ $- == *i* ]] && source '"${BLESH_INSTALL_DIR}"'/blesh/ble.sh'
 
 # --------------------------------------------------------------------------------------------------
 # Functions
