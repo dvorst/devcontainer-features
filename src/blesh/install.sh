@@ -115,6 +115,21 @@ if ! has bash; then
     pkg_install bash
 fi
 
+# ca-certificates is required for HTTPS downloads; install unconditionally —
+# minimal images (e.g. Azure Linux base/core) ship curl without CA trust bundles,
+# and package managers handle already-installed packages idempotently
+# NixOS uses a different package name: 'cacert'
+if has nix-env; then
+    pkg_install cacert
+else
+    pkg_install ca-certificates
+fi
+
+# awk is required by ble.sh at install time and runtime
+if ! has awk; then
+    pkg_install gawk
+fi
+
 # ps is required by ble.sh at runtime
 if ! has ps; then
     # Azure Linux, Fedora, RHEL, CentOS, Amazon Linux, and Arch use procps-ng
