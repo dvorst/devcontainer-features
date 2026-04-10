@@ -38,7 +38,7 @@ pkg_install() {
         yum install --assumeyes "$@"
     elif has zypper; then    # openSUSE
         zypper refresh
-        zypper install --non-interactive "$@"
+        zypper --non-interactive install "$@"
     elif has pacman; then    # Arch Linux
         pacman --sync --refresh --noconfirm "$@"
     elif has nix-env; then  # NixOS
@@ -68,7 +68,7 @@ pkg_remove() {
         yum remove --assumeyes "$@"
         yum autoremove --assumeyes
     elif has zypper; then    # openSUSE
-        zypper remove --non-interactive --clean-deps "$@"
+        zypper --non-interactive remove --clean-deps "$@"
     elif has pacman; then    # Arch Linux
         pacman --remove --nosave --recursive --noconfirm "$@"
     elif has nix-env; then   # NixOS
