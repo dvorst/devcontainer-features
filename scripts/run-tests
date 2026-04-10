@@ -1,9 +1,16 @@
 #!/bin/sh
 set -eu
 
-WORKFLOW="/workspaces/devcontainer-features/.github/workflows/test.yml"
-FEATURE="${1:-blesh}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+WORKFLOW="$SCRIPT_DIR/../.github/workflows/test.yml"
+FEATURE="${1:-}"
 IMAGE="${2:-}"
+
+if [ -n "$FEATURE" ]; then
+    features="$FEATURE"
+else
+    features=$(ls "$SCRIPT_DIR/../src")
+fi
 
 if [ -n "$IMAGE" ]; then
     images="$IMAGE"
@@ -11,11 +18,13 @@ else
     images=$(yq --raw-output '.jobs.test.strategy.matrix["base-image"][]' "$WORKFLOW")
 fi
 
-for image in $images; do
-    printf '==================================== %s ====================================\n' "$image"
-    devcontainer features test \
-        --project-folder . \
-        --features "$FEATURE" \
-        --base-image "$image" \
-        --log-level info
+for feature in $features; do
+    for image in $images; do
+        printf '==================================== %s | %s ====================================\n' "$feature" "$image"
+        devcontainer features test \
+            --project-folder . \
+            --features "$feature" \
+            --base-image "$image" \
+            --log-level info
+    done
 done
