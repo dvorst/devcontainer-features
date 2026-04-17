@@ -6,6 +6,8 @@
 #   - Red Hat UBI: major version is part of the repo path (e.g. ubi9/ubi, ubi10/ubi)
 set -eu
 
+# TODO: also update the tests
+
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 WORKFLOW="$SCRIPT_DIR/../.github/workflows/test.yml"
 
