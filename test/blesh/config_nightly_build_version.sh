@@ -4,12 +4,29 @@ set -eu
 # shellcheck source=/dev/null
 . ./dev-container-features-test-lib
 
-INSTALL_DIR="/usr/local/share"
 VERSION="0.4.0-nightly+7cf1387"
 
-BLE_VERSION=$(bash -c "source ${INSTALL_DIR}/blesh/ble.sh --lib && echo \$BLE_VERSION")
-echo "BLE_VERSION=${BLE_VERSION}"
+get-version() {
+	# Load bashrc and get blesh version
+	# cannot use `bash -i -c "source $BASHRC && echo $BLE_VERSION"` because:
+	# 	ble.sh bails out when BASH_EXECUTION_STRING is set (bash -c), so the command must be run
+	#	via a script file.
+	# cannot use `bash -i "$_tmp_script_file` because:
+	#	ble.sh bails out when the process is not connected to a TTY, so `script -qec` is used
+	#	which does have TTY attached. `bash -i` is still needed to 
+	# script
+	#	-q: suppres script started/done header/footer that script normally prints
+	#	-e: exit code passthrough
+	#	-c: take argument to run as command instead of spawning an interactive shell
+	_tmp_script_file=$(mktemp)
+	# shellcheck disable=SC2016
+	printf 'echo $BLE_VERSION' > "${_tmp_script_file}"
+	script -qec "bash -i $_tmp_script_file" /dev/null
+}
 
-check "ble.sh version" test "${BLE_VERSION}" = "${VERSION}"
+echo "---"
+echo $(get-version)
+echo "==="
+check "ble.sh version" test "$(get-version)" = "${VERSION}"
 
 reportResults

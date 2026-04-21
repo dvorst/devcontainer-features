@@ -1,6 +1,9 @@
 {
     "config_rcfile": {
         "image": "debian:latest",
+        "mounts": [
+            "source=/workspaces/devcontainer-features/doc/.blerc,target=/workspaces/some-project/.blerc,type=bind,consistency=cached"
+        ],
         "features": {
             "blesh": {
                 "rcfile": "/workspaces/devcontainer-features/doc/.blerc"
