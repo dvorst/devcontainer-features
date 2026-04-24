@@ -2,16 +2,25 @@
 set -eu
 
 # --------------------------------------------------------------------------------------------------
-# Config
-
-BLESH_INSTALL_DIR="/usr/local/share"
-BASH_BASHRC="/etc/bash.bashrc"
-BLESH_BASHRC_LINE='[[ $- == *i* ]] && source /usr/local/share/blesh/ble.sh'
-
-# --------------------------------------------------------------------------------------------------
 # Functions
 
 has() { command -v "$1" >/dev/null 2>&1; }
+
+# Download a file from a URL to a destination path
+# Prefers curl; falls back to wget with BusyBox detection
+download() {
+    _url="$1"
+    _dest="$2"
+    if has curl; then
+        curl --fail --location --proto '=https' --tlsv1.2 --output "$_dest" "$_url"
+    # BusyBox wget (Alpine) does not support --secure-protocol; GNU wget does
+    # BusyBox grep only supports short flags: -F (fixed-strings), -q (quiet, return 0 if found)
+    elif wget --version 2>&1 | grep -Fq 'BusyBox'; then
+        wget --output-document "$_dest" "$_url"
+    else
+        wget --secure-protocol=TLSv1_2 --output-document "$_dest" "$_url"
+    fi
+}
 
 # Install a package using whatever package manager is available
 pkg_install() {
@@ -29,7 +38,7 @@ pkg_install() {
         yum install --assumeyes "$@"
     elif has zypper; then    # openSUSE
         zypper refresh
-        zypper install --non-interactive "$@"
+        zypper --non-interactive install "$@"
     elif has pacman; then    # Arch Linux
         pacman --sync --refresh --noconfirm "$@"
     elif has nix-env; then  # NixOS
@@ -49,7 +58,6 @@ pkg_remove() {
         apt-get autoremove --yes
     elif has apk; then       # Alpine
         apk del --purge "$@"
-        apk autoremove
     elif has tdnf; then      # Azure Linux (Mariner)
         tdnf remove --assumeyes "$@"
         tdnf autoremove --assumeyes
@@ -60,7 +68,7 @@ pkg_remove() {
         yum remove --assumeyes "$@"
         yum autoremove --assumeyes
     elif has zypper; then    # openSUSE
-        zypper remove --non-interactive --clean-deps "$@"
+        zypper --non-interactive remove --clean-deps "$@"
     elif has pacman; then    # Arch Linux
         pacman --remove --nosave --recursive --noconfirm "$@"
     elif has nix-env; then   # NixOS
@@ -92,11 +100,55 @@ pkg_clean() {
 }
 
 # --------------------------------------------------------------------------------------------------
+# Validate required environment variables
+# Mostly usefull when debugging
+
+: "${NIGHTLY_BUILD_VERSION:?NIGHTLY_BUILD_VERSION must be set}"
+: "${INSTALL_DIR:?INSTALL_DIR must be set}"
+: "${BASHRC:?BASHRC must be set}"
+: "${RCFILE:=}"
+
+# --------------------------------------------------------------------------------------------------
 # Install permanent tools
 
 # bash is required to run the ble.sh installer and to use ble.sh at runtime
 if ! has bash; then
     pkg_install bash
+fi
+
+# ca-certificates is required for HTTPS downloads; install unconditionally —
+# minimal images (e.g. Azure Linux base/core) ship curl without CA trust bundles,
+# and package managers handle already-installed packages idempotently
+# NixOS uses a different package name: 'cacert'
+if has nix-env; then
+    pkg_install cacert
+else
+    pkg_install ca-certificates
+fi
+
+# awk is required by ble.sh at install time and runtime
+if ! has awk; then
+    pkg_install gawk
+fi
+
+# sed is required by ble.sh at install time and runtime
+if ! has sed; then
+    if has nix-env; then  # NixOS: GNU sed is packaged as 'gnused'
+        pkg_install gnused
+    else
+        pkg_install sed
+    fi
+fi
+
+# ps is required by ble.sh at runtime
+if ! has ps; then
+    # Azure Linux, Fedora, RHEL, CentOS, Amazon Linux, and Arch use procps-ng
+    if has tdnf || has dnf || has yum || has pacman; then
+        pkg_install procps-ng
+    # all others use procps
+	else
+        pkg_install procps
+    fi
 fi
 
 # --------------------------------------------------------------------------------------------------
@@ -123,9 +175,9 @@ fi
 
 # Ensure xz decompression is available (package name differs per distro)
 # Note: busybox tar has xz support built in and does not require the xz binary,
+#       but GNU tar requires xz to be installed separately.
 _installed_xz=false
 _xz_pkg=""
-#       but GNU tar requires xz to be installed separately.
 if ! has xz; then
     if has apt-get; then  # Debian, Ubuntu: package is named 'xz-utils'
         pkg_install xz-utils
@@ -149,11 +201,7 @@ rm -rf /tmp/blesh /tmp/blesh.tar.xz
 
 # Download
 url="https://github.com/akinomyoga/ble.sh/releases/download/nightly/${NIGHTLY_BUILD_VERSION}.tar.xz"
-if has curl; then
-    curl --fail --location --proto '=https' --tlsv1.2 --output /tmp/blesh.tar.xz "$url"
-else
-    wget --secure-protocol=TLSv1_2 --output-document /tmp/blesh.tar.xz "$url"
-fi
+download "$url" /tmp/blesh.tar.xz
 
 # Extract
 # busybox tar does not support `tar --one-top-level`, so the dir is created manually
@@ -165,14 +213,20 @@ tar -xJf /tmp/blesh.tar.xz \
 rm /tmp/blesh.tar.xz
 
 # Install
-bash /tmp/blesh/ble.sh --install "$BLESH_INSTALL_DIR"
+bash /tmp/blesh/ble.sh --install "$INSTALL_DIR"
 rm -rf /tmp/blesh
 
+# verify file exists to catch silent install failure
+# ble.sh may exit 0 even when installation fails (this is at least the case for missing runtime dependencies)
+test -f "${INSTALL_DIR}/blesh/ble.sh" || { echo "Error: ble.sh installation failed" >&2; exit 1; }
+
 # Set up shell integration in /etc/bash.bashrc
-touch "$BASH_BASHRC"
+# ${RCFILE:+ --rcfile ${RCFILE}} expands to ' --rcfile <path>' when set, empty otherwise
+_bashrc_line='[[ $- == *i* ]] && source '"${INSTALL_DIR}"'/blesh/ble.sh'"${RCFILE:+ --rcfile ${RCFILE}}"
+touch "$BASHRC"
 # busybox grep does not support long flags; use short flags -F (fixed-strings) and -q (quiet)
-if ! grep -Fq "$BLESH_BASHRC_LINE" "$BASH_BASHRC"; then
-    printf '\n%s\n' "$BLESH_BASHRC_LINE" >> "$BASH_BASHRC"
+if ! grep -Fq "$_bashrc_line" "$BASHRC"; then
+    printf '\n%s\n' "$_bashrc_line" >> "$BASHRC"
 fi
 
 # --------------------------------------------------------------------------------------------------

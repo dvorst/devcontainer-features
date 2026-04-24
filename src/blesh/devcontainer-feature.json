@@ -9,6 +9,21 @@
             "type": "string",
             "default": "ble-nightly",
             "description": "Nightly build version to install (e.g. 'ble-nightly-20260310+b99cadb'). Defaults to 'ble-nightly', which installs the most recent nightly build."
+        },
+        "install-dir": {
+            "type": "string",
+            "default": "/usr/local/share",
+            "description": "Directory to install ble.sh into. Defaults to '/usr/local', which installs blesh for all users."
+        },
+        "bashrc": {
+            "type": "string",
+            "default": "/etc/bash.bashrc",
+            "description": "Path to the bashrc file to add the ble.sh source line to. Defaults to '/etc/bash.bashrc', which installs blesh for all users."
+        },
+        "rcfile": {
+            "type": "string",
+            "default": "",
+            "description": "Path to a ble.sh configuration file (blerc) to load at startup via --rcfile. When empty (the default), ble.sh will use '~/.blerc'. I highly recommend setting this to '/workspaces/<your-project-name>/.devcontainer/.blerc' and to create this file in your workspace."
         }
     },
     "installsAfter": []

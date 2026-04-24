@@ -25,7 +25,9 @@ Checklist
 - if part of a shell script is specific to a certain distro, the distro(s) is/are added with a comment
 - Avoid nesting config files in scripts, keeping these in separate files allows for easier linting
 - shell scripts should be idempotent
-- in shell, longflags are used over shortflags where possible, to improve readability
+- in shell, longflags are prefered over shortflags where possible, to improve readability. But do
+  note that most build-in busybox commands only support shorthand flags. Explain the shorthand
+  flags when used.
 - Apply proper software engineering princples:
   - Don't Repeat Yourself
   - Keep It Simple

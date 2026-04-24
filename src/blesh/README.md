@@ -1,3 +1,25 @@
+
+# Ble.sh (blesh)
+
+Installs ble.sh (Bash Line Editor) from the nightly build, providing syntax highlighting, autocompletion, and multiline editing in Bash.
+
+## Example Usage
+
+```json
+"features": {
+    "ghcr.io/dvorst/devcontainer-features/blesh:1": {}
+}
+```
+
+## Options
+
+| Options Id | Description | Type | Default Value |
+|-----|-----|-----|-----|
+| nightly-build-version | Nightly build version to install (e.g. 'ble-nightly-20260310+b99cadb'). Defaults to 'ble-nightly', which installs the most recent nightly build. | string | ble-nightly |
+| install-dir | Directory to install ble.sh into. Defaults to '/usr/local', which installs blesh for all users. | string | /usr/local/share |
+| bashrc | Path to the bashrc file to add the ble.sh source line to. Defaults to '/etc/bash.bashrc', which installs blesh for all users. | string | /etc/bash.bashrc |
+| rcfile | Path to a ble.sh configuration file (blerc) to load at startup via --rcfile. When empty (the default), ble.sh will use '~/.blerc'. I highly recommend setting this to '/workspaces/<your-project-name>/.devcontainer/.blerc' and to create this file in your workspace. | string | - |
+
 ## Installation
 ### with configuration
 
@@ -84,3 +106,8 @@ the install completes, keeping the image lean.
 
 `bash`, `awk`, `sed`, `ps`, and `ca-certificates` are installed if missing, but left in the image
 since blesh requires these to function, but does not install these itself.
+
+
+---
+
+_Note: This file was auto-generated from the [devcontainer-feature.json](https://github.com/dvorst/devcontainer-features/blob/main/src/blesh/devcontainer-feature.json).  Add additional notes to a `NOTES.md`._

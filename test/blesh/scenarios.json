@@ -1,0 +1,87 @@
+{
+    "config_rcfile": {
+        "image": "debian:latest",
+        "mounts": [
+            "source=/workspaces/devcontainer-features/doc/.blerc,target=/workspaces/some-project/.blerc,type=bind,consistency=cached"
+        ],
+        "features": {
+            "blesh": {
+                "rcfile": "/workspaces/some-project/.blerc"
+            }
+        }
+        
+    },
+    "config_nightly_build_version": {
+        "image": "debian:latest",
+        "features": {
+            "blesh": {
+                "nightly-build-version": "ble-nightly-20260124+7cf1387"
+            }
+        }
+    },
+    "config_install_dir_and_bashrc": {
+        "image": "debian:latest",
+        "features": {
+            "blesh": {
+                "install-dir": "/root/blesh",
+                "bashrc": "/root/.bashrc"
+            }
+        }
+    },
+    "image_debian": {
+        "image": "debian:latest",
+        "features": {"blesh": {}}
+    },
+    "image_ubuntu": {
+        "image": "ubuntu:latest",
+        "features": {"blesh": {}}
+    },
+    "image_alpine": {
+        "image": "alpine:latest",
+        "features": {"blesh": {}}
+    },
+    "image_fedora": {
+        "image": "fedora:latest",
+        "features": {"blesh": {}}
+    },
+    "image_centos": {
+        "image": "quay.io/centos/centos:latest",
+        "features": {"blesh": {}}
+    },
+    "image_oracle": {
+        // update image version with update-image-tags
+        "image": "oraclelinux:10",
+        "features": {"blesh": {}}
+    },
+    "image_rocky": {
+        // update image version with update-image-tags
+        "image": "rockylinux:9",
+        "features": {"blesh": {}}
+    },
+    "image_alma": {
+        "image": "almalinux:latest",
+        "features": {"blesh": {}}
+    },
+    "image_amazon": {
+        "image": "amazonlinux:latest",
+        "features": {"blesh": {}}
+    },
+    "image_azure": {
+        // update image version with update-image-tags
+        "image": "mcr.microsoft.com/azurelinux/base/core:3.0",
+        "features": {"blesh": {}}
+    },
+    "image_rhel": {
+        // update image version with update-image-tags
+        "image": "registry.access.redhat.com/ubi10/ubi",
+        "features": {"blesh": {}}
+    },
+    "image_opensuse": {
+        "image": "opensuse/leap:latest",
+        "features": {"blesh": {}}
+    },
+    "image_arch": {
+        "image": "archlinux:latest",
+        "features": {"blesh": {}}
+    }
+}

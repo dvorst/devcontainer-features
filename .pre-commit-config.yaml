@@ -1,0 +1,21 @@
+repos:
+  - repo: local
+    hooks:
+      - id: check-docs
+        name: check-docs
+        language: script
+        entry: scripts/check-docs
+        pass_filenames: false
+        always_run: true
+      - id: check-devcontainer-feature-json
+        name: check-devcontainer-feature-json
+        language: script
+        entry: scripts/check-devcontainer-feature-json
+        files: ^src/.*/devcontainer-feature\.json$
+        pass_filenames: false
+      - id: check-image-tags
+        name: check-image-tags
+        language: script
+        entry: scripts/check-image-tags
+        pass_filenames: false
+        always_run: true

@@ -1,0 +1,17 @@
+#!/bin/sh
+# Verify that all pinned image tags in test/blesh/scenarios.json are up to date.
+# Run scripts/update-image-tags to fix any outdated tags.
+set -eu
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+"$SCRIPT_DIR/update-image-tags"
+
+CHANGED="$(git -C "$SCRIPT_DIR/.." diff --name-only -- 'test/blesh/scenarios.json')"
+
+if [ -n "$CHANGED" ]; then
+    printf 'Image tags in test/blesh/scenarios.json are out of date.\n\nRun update-image-tags to update them.\n' >&2
+    exit 1
+fi
+
+printf 'Image tags are up to date.\n'
