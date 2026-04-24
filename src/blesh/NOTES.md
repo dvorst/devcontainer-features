@@ -1,10 +1,3 @@
-# ble.sh Feature Notes
-
-[ble.sh](https://github.com/akinomyoga/ble.sh) (Bash Line Editor) provides:
--   syntax highlighting: such as highlighting an incorrectly typed command in red
--   autocompletion
--   and multiline editing.
-
 ## Installation
 ### with configuration
 
