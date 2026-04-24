@@ -1,0 +1,21 @@
+#!/bin/sh
+set -eu
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Derive owner/repo from git remote, fallback to env vars
+REMOTE_URL="$(git -C "$REPO_ROOT" remote get-url origin 2>/dev/null || true)"
+# Extract <owner>/<repo> from https://github.com/<owner>/<repo>.git or git@github.com:<owner>/<repo>.git
+NAMESPACE="$(printf '%s' "$REMOTE_URL" \
+    | sed 's|.*github\.com[:/]\(.*\)\.git|\1|' \
+    | sed 's|.*github\.com[:/]\(.*\)|\1|')"
+GITHUB_OWNER="$(printf '%s' "$NAMESPACE" | cut -d'/' -f1)"
+GITHUB_REPO="$(printf '%s' "$NAMESPACE" | cut -d'/' -f2)"
+
+devcontainer features generate-docs \
+    --project-folder "$REPO_ROOT/src" \
+    --registry ghcr.io \
+    --namespace "$NAMESPACE" \
+    --github-owner "$GITHUB_OWNER" \
+    --github-repo "$GITHUB_REPO"
