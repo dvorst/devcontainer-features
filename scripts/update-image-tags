@@ -1,15 +1,13 @@
 #!/bin/sh
-# Updates pinned image references in the test workflow to their latest versions.
+# Updates pinned image references in the blesh test scenarios to their latest versions.
 #
 # Handles images where 'latest' is not published as a tag:
 #   - Azure Linux: major version is a tag (e.g. 3.0, 4.0)
 #   - Red Hat UBI: major version is part of the repo path (e.g. ubi9/ubi, ubi10/ubi)
 set -eu
 
-# TODO: also update the tests
-
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-WORKFLOW="$SCRIPT_DIR/../.github/workflows/test.yml"
+SCENARIOS="$SCRIPT_DIR/../test/blesh/scenarios.json"
 
 # Fetches the highest X.Y tag for a given registry and repo.
 # Usage: latest_xy_tag <registry> <repo>
@@ -44,9 +42,9 @@ update_azurelinux() {
         return 1
     fi
 
-    # Extract current tag from workflow (e.g. mcr.microsoft.com/azurelinux/base/core:3.0 -> 3.0)
+    # Extract current tag from scenarios (e.g. mcr.microsoft.com/azurelinux/base/core:3.0 -> 3.0)
     current=$(
-        grep --only-matching "$image:[0-9][0-9]*\.[0-9][0-9]*" "$WORKFLOW" \
+        grep --only-matching "$image:[0-9][0-9]*\.[0-9][0-9]*" "$SCENARIOS" \
             | head --lines=1 \
             | cut --delimiter=: --fields=2
     )
@@ -56,16 +54,16 @@ update_azurelinux() {
         return 0
     fi
 
-    sed --in-place "s|$image:$current|$image:$latest|g" "$WORKFLOW"
+    sed --in-place "s|$image:$current|$image:$latest|g" "$SCENARIOS"
     printf 'Updated Azure Linux: %s -> %s\n' "$current" "$latest"
 }
 
 update_ubi() {
     registry="registry.access.redhat.com"
 
-    # Extract current major version from workflow (e.g. registry.access.redhat.com/ubi9/ubi -> 9)
+    # Extract current major version from scenarios (e.g. registry.access.redhat.com/ubi9/ubi -> 9)
     current_major=$(
-        grep --only-matching "$registry/ubi[0-9]*/ubi" "$WORKFLOW" \
+        grep --only-matching "$registry/ubi[0-9]*/ubi" "$SCENARIOS" \
             | head --lines=1 \
             | sed "s|$registry/ubi\([0-9]*\)/ubi|\1|"
     )
@@ -85,7 +83,7 @@ update_ubi() {
 
     sed --in-place \
         "s|$registry/ubi${current_major}/ubi|$registry/ubi${latest_major}/ubi|g" \
-        "$WORKFLOW"
+        "$SCENARIOS"
     printf 'Updated Red Hat UBI: ubi%s -> ubi%s\n' "$current_major" "$latest_major"
 }
 

@@ -65,12 +65,12 @@
         "features": {"blesh": {}}
     },
     "image_azure": {
-        // update image version with update-workflow-image-tags
+        // update image version with update-image-tags
         "image": "mcr.microsoft.com/azurelinux/base/core:3.0",
         "features": {"blesh": {}}
     },
     "image_rhel": {
-        // update image version with update-workflow-image-tags
+        // update image version with update-image-tags
         "image": "registry.access.redhat.com/ubi10/ubi",
         "features": {"blesh": {}}
     },
