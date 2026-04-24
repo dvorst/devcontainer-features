@@ -1,0 +1,18 @@
+#!/bin/sh
+# Generate feature docs and fail if any README.md is out of date.
+set -eu
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# Generate docs
+"$SCRIPT_DIR/generate-docs"
+
+# Check if any README.md changed after generation
+CHANGED="$(git -C "$SCRIPT_DIR/.." diff --name-only -- 'src/**/README.md')"
+
+if [ -n "$CHANGED" ]; then
+    printf 'The following README.md file(s) are out of date:\n%s\n\nRun scripts/generate-docs to update them.\n' "$CHANGED" >&2
+    exit 1
+fi
+
+echo "check succesfull"
