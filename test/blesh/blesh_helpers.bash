@@ -14,7 +14,6 @@ run-in-blesh-shell() {
 	#	-q: suppress script started/done header/footer that script normally prints
 	#	-e: exit code passthrough
 	#	-c: take argument to run as command instead of spawning an interactive shell
-	# tail -n 1: return only the last line of output, discarding messages from sourcing ble.sh
 	# tr -d '\r': remove carriage returns added by script's PTY
 	local _tmp_script_file
 	_tmp_script_file=$(mktemp)
@@ -22,6 +21,13 @@ run-in-blesh-shell() {
 	# controls expansion, not this function.
 	# shellcheck disable=SC2016
 	printf '%s' "$1" > "${_tmp_script_file}"
-	script -qec "bash -i ${_tmp_script_file}" /dev/null | tail -n 1 | tr -d '\r'
+	script -qec "bash -i ${_tmp_script_file}" /dev/null | tr -d '\r'
 	rm -f "${_tmp_script_file}"
+}
+
+get-blesh-var() {
+	# Read the value of a variable from a ble.sh-loaded interactive bash session.
+	# $1: variable name
+	# tail -n 1: discard ble.sh startup messages, keep only the echoed value
+	run-in-blesh-shell "echo \$$1" | tail -n 1
 }

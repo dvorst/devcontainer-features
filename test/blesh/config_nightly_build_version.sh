@@ -8,7 +8,6 @@ set -eu
 
 VERSION="0.4.0-nightly+7cf1387"
 
-# shellcheck disable=SC2016
-check "ble.sh version" test "$(run-in-blesh-shell 'echo $BLE_VERSION')" = "${VERSION}"
+check "ble.sh version" test "$(get-blesh-var BLE_VERSION)" = "${VERSION}"
 
 reportResults

@@ -10,7 +10,6 @@ RCFILE="/workspaces/some-project/.blerc"  # see scenarios.json
 
 # NOTE: variable name _ble_base_rcfile might change in the future, see
 #		https://github.com/akinomyoga/ble.sh/blob/master/ble.pp
-# shellcheck disable=SC2016
-check "ble.sh rcfile" test "$(run-in-blesh-shell 'echo $_ble_base_rcfile')" = "${RCFILE}"
+check "ble.sh rcfile" test "$(get-blesh-var _ble_base_rcfile)" = "${RCFILE}"
 
 reportResults
