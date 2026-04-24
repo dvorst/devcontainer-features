@@ -23,7 +23,7 @@
         "rcfile": {
             "type": "string",
             "default": "",
-            "description": "Path to a ble.sh configuration file (blerc) to load at startup via --rcfile. When empty (the default), ble.sh will use '~/.blerc'."
+            "description": "Path to a ble.sh configuration file (blerc) to load at startup via --rcfile. When empty (the default), ble.sh will use '~/.blerc'. I highly recommend setting this to '/workspaces/<your-project-name>/.devcontainer/.blerc' and to create this file in your workspace."
         }
     },
     "installsAfter": []
