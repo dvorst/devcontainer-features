@@ -32,6 +32,7 @@
         "ghcr.io/devcontainers-extra/features/apt-packages:1": {
             "packages": "podman,podman-docker,yq,libcriu2,buildah,containers-storage,slirp4netns,nftables,catatonit,criu,uidmap,gpg-wks-client,tini,dbus-user-session,aardvark-dns,dumb-init,passt,fuse-overlayfs,linux-sysctl-defaults,systemd-cryptsetup,python3-pycriu,systemd-timesyncd,libnss-systemd,libkmod2"
         },
+        "ghcr.io/prulloac/devcontainer-features/pre-commit:1": {},
         "ghcr.io/devcontainers-extra/features/claude-code:1": {}
     },
     "remoteEnv": {
