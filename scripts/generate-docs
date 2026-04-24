@@ -13,8 +13,9 @@ NAMESPACE="$(printf '%s' "$REMOTE_URL" \
 GITHUB_OWNER="$(printf '%s' "$NAMESPACE" | cut -d'/' -f1)"
 GITHUB_REPO="$(printf '%s' "$NAMESPACE" | cut -d'/' -f2)"
 
+cd "$REPO_ROOT"
 devcontainer features generate-docs \
-    --project-folder "$REPO_ROOT/src" \
+    --project-folder src \
     --registry ghcr.io \
     --namespace "$NAMESPACE" \
     --github-owner "$GITHUB_OWNER" \

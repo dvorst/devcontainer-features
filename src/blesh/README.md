@@ -110,4 +110,4 @@ since blesh requires these to function, but does not install these itself.
 
 ---
 
-_Note: This file was auto-generated from the [devcontainer-feature.json](https://github.com/dvorst/devcontainer-features/blob/main//workspaces/devcontainer-features/src/blesh/devcontainer-feature.json).  Add additional notes to a `NOTES.md`._
+_Note: This file was auto-generated from the [devcontainer-feature.json](https://github.com/dvorst/devcontainer-features/blob/main/src/blesh/devcontainer-feature.json).  Add additional notes to a `NOTES.md`._
