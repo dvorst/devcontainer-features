@@ -3,6 +3,8 @@
 #
 # Handles images where 'latest' is not published as a tag:
 #   - Azure Linux: major version is a tag (e.g. 3.0, 4.0)
+#   - Oracle Linux: major version is a tag (e.g. 8, 9)
+#   - Rocky Linux: major version is a tag (e.g. 8, 9)
 #   - Red Hat UBI: major version is part of the repo path (e.g. ubi9/ubi, ubi10/ubi)
 set -eu
 
@@ -19,6 +21,48 @@ latest_xy_tag() {
         | tr --delete '"' \
         | sort --version-sort \
         | tail --lines=1
+}
+
+# Returns 0 if a Docker Hub library image tag exists, 1 otherwise.
+# Usage: hub_tag_exists <repo> <tag>
+hub_tag_exists() {
+    repo="$1"
+    tag="$2"
+    status=$(curl --silent --output /dev/null --write-out '%{http_code}' \
+        "https://hub.docker.com/v2/repositories/library/$repo/tags/$tag")
+    [ "$status" = "200" ]
+}
+
+# Updates a Docker Hub library image pinned to an integer major version tag.
+# Usage: update_dockerhub_major_tag <image>
+update_dockerhub_major_tag() {
+    image="$1"
+
+    current_major=$(
+        grep --only-matching "\"$image:[0-9][0-9]*\"" "$SCENARIOS" \
+            | head --lines=1 \
+            | grep --only-matching '[0-9][0-9]*'
+    )
+
+    if [ -z "$current_major" ]; then
+        printf 'error: could not find current %s version in scenarios\n' "$image" >&2
+        return 1
+    fi
+
+    latest_major="$current_major"
+    next_major=$((current_major + 1))
+    while hub_tag_exists "$image" "$next_major"; do
+        latest_major="$next_major"
+        next_major=$((next_major + 1))
+    done
+
+    if [ "$current_major" = "$latest_major" ]; then
+        printf '%s already up to date: %s\n' "$image" "$latest_major"
+        return 0
+    fi
+
+    sed --in-place "s|$image:$current_major|$image:$latest_major|g" "$SCENARIOS"
+    printf 'Updated %s: %s -> %s\n' "$image" "$current_major" "$latest_major"
 }
 
 # Returns 0 if the registry repo exists, 1 otherwise.
@@ -88,4 +132,6 @@ update_ubi() {
 }
 
 update_azurelinux
+update_dockerhub_major_tag oraclelinux
+update_dockerhub_major_tag rockylinux
 update_ubi

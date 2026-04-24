@@ -49,11 +49,13 @@
         "features": {"blesh": {}}
     },
     "image_oracle": {
-        "image": "oraclelinux:latest",
+        // update image version with update-image-tags
+        "image": "oraclelinux:10",
         "features": {"blesh": {}}
     },
     "image_rocky": {
-        "image": "rockylinux:latest",
+        // update image version with update-image-tags
+        "image": "rockylinux:9",
         "features": {"blesh": {}}
     },
     "image_alma": {
