@@ -1,0 +1,44 @@
+#!/bin/sh
+# Validate all devcontainer-feature.json files in src/ against the official schema.
+set -eu
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+SCHEMA_URL="https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainerFeature.schema.json"
+SCHEMA_FILE="/tmp/devcontainer-feature.schema.json"
+AJV_DIR="/tmp/ajv-validate"
+
+# Download schema
+curl --silent --show-error --location --output "$SCHEMA_FILE" "$SCHEMA_URL"
+
+# Install ajv-cli into a temporary directory
+npm install --prefix "$AJV_DIR" --silent ajv-cli ajv-formats
+AJV="$AJV_DIR/node_modules/.bin/ajv"
+
+failed=0
+for feature_json in "$REPO_ROOT"/src/*/devcontainer-feature.json; do
+    feature="$(basename "$(dirname "$feature_json")")"
+
+    # JSON syntax check
+    if ! jq --exit-status . "$feature_json" > /dev/null 2>&1; then
+        printf 'FAIL (invalid JSON): %s\n' "$feature_json" >&2
+        failed=1
+        continue
+    fi
+
+    # Schema validation
+    # ajv-cli does not support long flags; -s = schema, -d = data
+    if ! "$AJV" validate --strict=false -s "$SCHEMA_FILE" -d "$feature_json" 2>&1; then
+        printf 'FAIL (schema): %s\n' "$feature" >&2
+        failed=1
+        continue
+    fi
+
+    printf 'OK: %s\n' "$feature"
+done
+
+rm -f "$SCHEMA_FILE"
+rm -rf "$AJV_DIR"
+
+exit "$failed"
