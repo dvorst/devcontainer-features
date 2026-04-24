@@ -1,0 +1,21 @@
+name: Check devcontainer-feature.json files
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: check-devcontainer-feature-json
+        run: ./scripts/check-devcontainer-feature-json
+
+      - name: Install devcontainer CLI
+        run: npm install --global @devcontainers/cli
+
+      - name: check-docs
+        run: ./scripts/check-docs
