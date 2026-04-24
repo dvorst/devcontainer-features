@@ -14,6 +14,9 @@ jobs:
       - name: check-devcontainer-feature-json
         run: ./scripts/check-devcontainer-feature-json
 
+      - name: check-image-tags
+        run: ./scripts/check-image-tags
+
       - name: Install devcontainer CLI
         run: npm install --global @devcontainers/cli
 

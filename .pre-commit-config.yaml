@@ -13,3 +13,9 @@ repos:
         entry: scripts/check-devcontainer-feature-json
         files: ^src/.*/devcontainer-feature\.json$
         pass_filenames: false
+      - id: check-image-tags
+        name: check-image-tags
+        language: script
+        entry: scripts/check-image-tags
+        pass_filenames: false
+        always_run: true
