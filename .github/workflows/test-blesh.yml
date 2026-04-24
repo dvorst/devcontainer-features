@@ -1,12 +1,9 @@
-name: Test blesh feature
+name: Test blesh
 
 on:
-  push:
-    paths:
-      - src/blesh/**
-      - test/blesh/**
-      - .github/workflows/test-blesh.yml
+  workflow_dispatch:
   pull_request:
+    branches: [main]
     paths:
       - src/blesh/**
       - test/blesh/**
@@ -14,45 +11,40 @@ on:
 
 jobs:
   test:
+    name: blesh / ${{ matrix.scenario }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        # base-images that do not support a latest tag can be updated to latest via the command
-        #   update-workflow-image-tags
-        base-image:
-          # Debian-based
-          - debian:latest
-          - ubuntu:latest
-          # Alpine
-          - alpine:latest
-          # RPM-based (dnf)
-          - fedora:latest
-          - quay.io/centos/centos:latest
-          - oraclelinux:latest
-          - rockylinux:latest
-          - almalinux:latest
-          # RPM-based (yum) - Amazon Linux uses yum/dnf
-          - amazonlinux:latest
-          # RPM-based (tdnf) - Azure Linux (has no 'latest' tag)
-          - mcr.microsoft.com/azurelinux/base/core:3.0
-          # Red Hat (dnf) - RHEL UBI (has no 'latest' tag)
-          - registry.access.redhat.com/ubi10/ubi
-          # openSUSE
-          - opensuse/leap:latest
-          # Arch
-          - archlinux:latest
+        scenario:
+          - config_rcfile
+          - config_nightly_build_version
+          - config_install_dir_and_bashrc
+          - image_debian
+          - image_ubuntu
+          - image_alpine
+          - image_fedora
+          - image_centos
+          - image_oracle
+          - image_rocky
+          - image_alma
+          - image_amazon
+          - image_azure
+          - image_rhel
+          - image_opensuse
+          - image_arch
 
     steps:
       - uses: actions/checkout@v4
 
+      # The config_rcfile scenario uses an absolute bind mount path matching the
+      # devcontainer workspace layout. Symlink the checkout so that path resolves
+      # on the Actions runner.
+      - name: Symlink checkout to /workspaces/devcontainer-features
+        run: sudo mkdir -p /workspaces && sudo ln -s "$GITHUB_WORKSPACE" /workspaces/devcontainer-features
+
       - name: Install devcontainer CLI
         run: npm install --global @devcontainers/cli
 
-      - name: Test feature
-        run: |
-          devcontainer features test \
-            --project-folder . \
-            --features blesh \
-            --base-image ${{ matrix.base-image }} \
-            --log-level info
+      - name: Test scenario
+        run: ./scripts/run-tests blesh ${{ matrix.scenario }}
