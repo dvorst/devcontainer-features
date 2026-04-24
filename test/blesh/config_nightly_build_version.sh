@@ -13,7 +13,9 @@ get-version() {
 	#	via a script file.
 	# cannot use `bash -i "$_tmp_script_file` because:
 	#	ble.sh bails out when the process is not connected to a TTY, so `script -qec` is used
-	#	which does have TTY attached. `bash -i` is still needed to 
+	#	which does have TTY attached. `bash -i` is still needed too
+	# tail -n 1: only return the echo version, without potential messages from sourcing ble.sh
+	# tr -d '\r' removes the carriage return
 	# script
 	#	-q: suppres script started/done header/footer that script normally prints
 	#	-e: exit code passthrough
@@ -21,11 +23,11 @@ get-version() {
 	_tmp_script_file=$(mktemp)
 	# shellcheck disable=SC2016
 	printf 'echo $BLE_VERSION' > "${_tmp_script_file}"
-	script -qec "bash -i $_tmp_script_file" /dev/null
+	script -qec "bash -i $_tmp_script_file" /dev/null | tail -n 1 | tr -d '\r'
 }
 
 echo "---"
-echo $(get-version)
+get-version
 echo "==="
 check "ble.sh version" test "$(get-version)" = "${VERSION}"
 
