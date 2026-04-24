@@ -6,7 +6,7 @@
         ],
         "features": {
             "blesh": {
-                "rcfile": "/workspaces/devcontainer-features/doc/.blerc"
+                "rcfile": "/workspaces/some-project/.blerc"
             }
         }
         

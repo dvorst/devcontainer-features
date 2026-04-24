@@ -21,12 +21,12 @@ get-bleopt-rcfile() {
 	#	-c: take argument to run as command instead of spawning an interactive shell
 	# tail -n 1: return only the rcfile, no messages from sourcing ble.sh
 	# tr -d '\r' removes the carriage return
+	# NOTE: variable name _ble_base_rcfile might change in the future, see
+	#		https://github.com/akinomyoga/ble.sh/blob/master/ble.pp
 	_tmp_script_file=$(mktemp)
-	printf 'bleopt rcfile' > "${_tmp_script_file}"
+	printf 'echo $_ble_base_rcfile' > "${_tmp_script_file}"
 	script -qec "bash -i $_tmp_script_file" /dev/null | tail -n 1 | tr -d '\r'
 }
-
-get-bleopt-rcfile
 
 check "ble.sh rcfile" test "$(get-bleopt-rcfile)" = "${RCFILE}"
 
